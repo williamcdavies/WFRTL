@@ -53,7 +53,7 @@ CREATE TEMP TABLE xref_ranked AS (
     GROUP BY p_id, year, day
 );
 
-CREATE TEMP TABLE fin AS (
+CREATE TEMP TABLE out AS (
     SELECT
         day
             AS date,

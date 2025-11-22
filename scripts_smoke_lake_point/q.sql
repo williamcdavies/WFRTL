@@ -12,7 +12,7 @@ CREATE TEMP TABLE xref AS (
             AS end,
         s."Density"
             AS density
-    FROM public.lakes_points p
+    FROM public.lakes_points l
     JOIN public.hms_smokes s
         ON ST_Intersects(
             l.geometry,

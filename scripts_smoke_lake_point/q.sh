@@ -8,8 +8,8 @@ for year in $(seq 2005 2025); do
     echo "done."
 done
 
-cp "smokes_lakes_points_composite2005.csv" "smokes_lakes_points_composite.csv"
+tail -n +5 "smokes_lakes_points_composite2005.csv" > "smokes_lakes_points_composite.csv"
 
 for year in $(seq 2006 2025); do
-    tail -n +2 "smokes_lakes_points_composite${year}.csv" >> "smokes_lakes_points_composite.csv"
+    tail -n +6 "smokes_lakes_points_composite${year}.csv" >> "smokes_lakes_points_composite.csv"
 done

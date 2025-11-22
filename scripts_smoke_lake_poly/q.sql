@@ -13,9 +13,9 @@ CREATE TEMP TABLE xref AS (
         s."Density"
             AS density
     FROM public.lakes_polys l
-    JOIN public.hms_smokes s
+    JOIN public.hms_smokes{{YEAR}} s
         ON ST_Intersects(
-            l.geometry,
+            l."4326_geometry",
             s.geometry
         )
 );
@@ -70,3 +70,5 @@ CREATE TEMP TABLE out AS (
     GROUP BY date
     ORDER BY date
 );
+
+COPY out TO STDOUT WITH CSV HEADER;

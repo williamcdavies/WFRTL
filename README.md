@@ -10,16 +10,17 @@ All shapefiles were scraped using Suitcase (found here: https://github.com/willi
 
 
 
-## `public.lakes`, `public.lakes_points`, `public.lakes_polys`
+### `public.lakes`, `public.lakes_points`, `public.lakes_polys`
 
 Shapefiles downloaded from https://www.hydrosheds.org/products/hydrolakes and translated to row objects in `public.lakes`, `public.lakes_points`, `public.lakes_polys`.
 
 
 
-## `public.lakes_buffers`
+### `public.lakes_buffers`
 
 Made in two steps using `lakes_polys` data:
-1. 
+
+1.
 
 ```sql
 ST_Transform(geometry, 3978)
@@ -37,18 +38,18 @@ to build 1.5 km buffer polygons.
 
 
 
-## `hms_fires`, `hms_smokes`
+### `hms_fires`, `hms_smokes`
 
 Shapefiles downloaded from https://www.ospo.noaa.gov/products/land/hms.html#data and translated to row objects in `hms_fires`, `hms_smokes`.
 
 
 
-## `populated_places`
+### `populated_places`
 
 Shapefiles downloaded from https://www.naturalearthdata.com/downloads/10m-cultural-vectors/10m-populated-places/ and tranlated to row objects in `populated_places`
 
 
 
-## `fire_area_canada_usa`
+### `fire_area_canada_usa`
 
 Shapefiles downloaded from {INSERT LINK TO SOURCE} and tranlated to row objects in `populated_places`

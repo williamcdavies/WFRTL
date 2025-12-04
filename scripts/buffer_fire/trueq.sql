@@ -6,14 +6,14 @@ WITH lp_filtered AS (
         l."Country",
         l."Pour_long",
         l."Pour_lat",
-        lp.buffer_geometry,
-        fu.geometry,
-        ST_Intersection(lp.buffer_geometry, fu.geometry) AS intersection_geometry,
-        ST_Area(lp.buffer_geometry) AS buffer_area
+        lp.geometry,
+        fu.buffer_geometry,
+        ST_Intersection(lp.geometry, fu.buffer_geometry) AS intersection_geometry,
+        ST_Area(fu.buffer_geometry) AS buffer_area
     FROM lakes_polys_3978 AS lp
     JOIN public.lakes AS l USING ("Hylak_id")
     JOIN public.fire_area_canada_usa_unions AS fu ON fu.year = {{YEAR}}
-    WHERE ST_Intersects(lp.buffer_geometry, fu.geometry)
+    WHERE ST_Intersects(lp.geometry, fu.buffer_geometry)
 )
 SELECT
     "Hylak_id",

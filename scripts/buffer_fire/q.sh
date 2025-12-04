@@ -11,7 +11,7 @@ for year in $(seq 2024 -1 1984); do
 
     # Concatenate with TRUE rows first
     cat "fire_area_canada_usa_composite${year}_overlap_true.csv" \
-        "fire_area_canada_usa_composite${year}_overlap_false.csv" \
+        $(tail -n +2 "fire_area_canada_usa_composite${year}_overlap_false.csv") \
         > "fire_area_canada_usa_composite${year}.csv"
 
     echo "Completed year $year."

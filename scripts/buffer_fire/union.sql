@@ -1,9 +1,5 @@
 -- Queries a union of all geometry valid records in a relation
-
-
 -- Build union table. Compatable with SRID: 3978
-
-
 -- CREATE TABLE fire_area_canada_usa_unions (
 --     "year"     INTEGER NOT NULL,
 --     "geometry" geometry(Geometry,3978),
@@ -11,15 +7,21 @@
 --     PRIMARY KEY ("year", "id")
 -- );
 
+
 -- CREATE INDEX idx_fire_area_canada_usa_unions_geometry
---     ON    fire_area_canada_usa_unions
---     USING GIST ("geometry");
+--     ON 
+--         fire_area_canada_usa_unions
+--     USING 
+--         GIST ("geometry");
 
 
 -- Compute and insert unions into fire_area_canada_usa_unions
-INSERT INTO fire_area_canada_usa_unions (year, geometry) SELECT 
+INSERT INTO 
+    fire_area_canada_usa_unions (year, geometry) 
+SELECT 
     {{YEAR}} 
         AS "year",
     ST_Union(geometry) 
         AS "union" 
-    FROM fire_area_canada_usa{{YEAR}};
+    FROM 
+        fire_area_canada_usa{{YEAR}};

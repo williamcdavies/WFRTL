@@ -52,4 +52,4 @@ Shapefiles downloaded from https://www.naturalearthdata.com/downloads/10m-cultur
 
 ### `fire_area_canada_usa`
 
-Shapefiles downloaded from {INSERT LINK TO SOURCE} and tranlated to row objects in `populated_places`
+Shapefiles downloaded from {INSERT LINK TO SOURCE} and tranlated to row objects in `fire_area_canada_usa`

@@ -20,6 +20,6 @@
 INSERT INTO fire_area_canada_usa_unions (year, geometry) SELECT 
     {{YEAR}} 
         AS "year",
-    T_Union(geometry) 
+    ST_Union(geometry) 
         AS "union" 
     FROM fire_area_canada_usa{{YEAR}};

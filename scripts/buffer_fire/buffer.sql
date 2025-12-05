@@ -1,19 +1,18 @@
 ALTER TABLE 
     fire_area_canada_usa_unions 
 ADD 
-    buffer_{{BUFFER_DISTANCE_IN_METERS}}_geometry
-    geometry(Geometry,3978);
+    {{BUFFER_DISTANCE}}_buffer_geometry geometry(Geometry,3978);
 
 
 UPDATE 
     fire_area_canada_usa_unions 
 SET 
-    buffer_{{BUFFER_DISTANCE_IN_METERS}}_geometry = ST_BUFFER(geometry, {{BUFFER_DISTANCE_IN_METERS}});
+    {{BUFFER_DISTANCE}}_buffer_geometry = ST_Buffer(geometry, {{BUFFER_DISTANCE}});
 
 
 CREATE INDEX 
-    idx_fire_area_canada_usa_unions_buffer_{{BUFFER_DISTANCE_IN_METERS}}_geometry
+    idx_fire_area_canada_usa_unions_{{BUFFER_DISTANCE}}_buffer_geometry
 ON
     fire_area_canada_usa_unions
 USING 
-    GIST ("buffer_{{BUFFER_DISTANCE_IN_METERS}}_geometry");
+    GIST ("{{BUFFER_DISTANCE}}_buffer_geometry");

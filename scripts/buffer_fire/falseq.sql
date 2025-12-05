@@ -6,12 +6,12 @@ WITH lp_filtered AS (
         l."Country",
         l."Pour_long",
         l."Pour_lat",
-        fu.buffer_geometry,
+        fu.buffer_{{BUFFER_DISTANCE_IN_METERS}}_geometry,
         lp.geometry AS lp_geometry
     FROM lakes_polys_3978 AS lp
     JOIN public.lakes AS l USING ("Hylak_id")
     JOIN public.fire_area_canada_usa_unions AS fu ON fu.year = {{YEAR}}
-    WHERE NOT ST_Intersects(lp.geometry, fu.buffer_geometry)
+    WHERE NOT ST_Intersects(lp.geometry, fu.buffer_{{BUFFER_DISTANCE_IN_METERS}}_geometry)
 )
 SELECT
     "Hylak_id",

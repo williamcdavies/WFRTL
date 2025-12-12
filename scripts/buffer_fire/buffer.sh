@@ -6,7 +6,7 @@
 # $buffer_distance=40000  #40_000
 # $buffer_distance=100000 #100_000
 
-echo "Updating with buffer of distance $1 m …"
+echo "Updating fire_area_canada_usa with buffer of distance $1 m …"
 
 sed "s/{{BUFFER_DISTANCE}}/$1/g" buffer.sql | psql -d spatial
    

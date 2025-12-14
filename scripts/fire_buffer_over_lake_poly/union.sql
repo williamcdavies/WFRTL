@@ -19,7 +19,7 @@ INSERT INTO
 SELECT 
     {{YEAR}} 
         AS year,
-    ST_Union(original.buffer_{{BUFFER_DISTANCE}}_geometry) 
+    ST_Union(original.buffer_geometry_{{BUFFER_DISTANCE}}) 
         AS geometry
 FROM 
     fire_area_canada_usa{{YEAR}} 

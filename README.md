@@ -1,24 +1,24 @@
-# WFRTL
+## WFRTL
 
-All data chunks transmited to postgres via:
+All data chunks transmited to postgres:
 
 ```python
 gdf.to_postgis(table, engine, if_exists="append", index=False, chunksize=1024)
 ```
 
-All shapefiles were scraped using Suitcase (found here: https://github.com/williamcdavies/suitcase).
+All shapefiles scraped using Suitcase (located at https://github.com/williamcdavies/suitcase).
 
 
 
-### `public.lakes`, `public.lakes_points`, `public.lakes_polys`
+#### `public.lakes`, `public.lakes_points`, `public.lakes_polys`
 
-Shapefiles downloaded from https://www.hydrosheds.org/products/hydrolakes and translated to row objects in `public.lakes`, `public.lakes_points`, `public.lakes_polys`.
+Shapefiles located at https://www.hydrosheds.org/products/hydrolakes. Transformed into models of `public.lakes`, `public.lakes_points`, `public.lakes_polys`.
 
 
 
-### `public.lakes_buffers`
+##### `public.lakes_buffers`
 
-Made in two steps using `lakes_polys` data:
+Made using `lakes_polys` models by:
 
 1.
 
@@ -26,7 +26,7 @@ Made in two steps using `lakes_polys` data:
 ST_Transform(geometry, 3978)
 ``` 
 
-to transform geometry data in `public.lakes_polys` from spatial reference system 4326 to 3978. 3978 was chosen to simplify `ST` operations between `public.lakes_buffers` and `public.fire_area_canada_usa`.
+to transform geometry data in `public.lakes_polys` from spatial reference system `4326` to `3978`. `3978` was chosen to simplify `ST` operations between `public.lakes_buffers` and `public.fire_area_canada_usa`.
 
 2.
 
@@ -38,18 +38,18 @@ to build 1.5 km buffer polygons.
 
 
 
-### `hms_fires`, `hms_smokes`
+#### `hms_fires`, `hms_smokes`
 
-Shapefiles downloaded from https://www.ospo.noaa.gov/products/land/hms.html#data and translated to row objects in `hms_fires`, `hms_smokes`.
-
-
-
-### `populated_places`
-
-Shapefiles downloaded from https://www.naturalearthdata.com/downloads/10m-cultural-vectors/10m-populated-places/ and tranlated to row objects in `populated_places`
+Shapefiles downloaded from https://www.ospo.noaa.gov/products/land/hms.html#data. Transformed into models of `hms_fires`, `hms_smokes`.
 
 
 
-### `fire_area_canada_usa`
+#### `populated_places`
 
-Shapefiles downloaded from {INSERT LINK TO SOURCE} and tranlated to row objects in `fire_area_canada_usa`
+Shapefiles downloaded from https://www.naturalearthdata.com/downloads/10m-cultural-vectors/10m-populated-places/. Transformed into models of `populated_places`
+
+
+
+#### `fire_area_canada_usa`
+
+Shapefiles downloaded from *UNKNOWN*. Transformed into models of `fire_area_canada_usa`

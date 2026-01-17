@@ -1,45 +1,53 @@
-CREATE TEMP TABLE xref AS (
+CREATE TEMP TABLE xref_1 AS 
     SELECT
-        p.id
-            AS p_id,
-        s.id
-            AS s_id,
-        s."Year"
-            AS year,
-        SUBSTRING(s."Start" FROM 1 FOR 7)
-            AS start,
-        SUBSTRING(s."End" FROM 1 FOR 7)
-            AS end,
-        s."Density"
-            AS density
-    FROM public.populated_places p
-    JOIN public.hms_smokes s
-        ON ST_Intersects(
-            p.geometry,
-            s.geometry
-        )
-);
+        wof_id
+            AS "WOF_ID",
+        name
+            AS "NAME",
+        adm0name
+            AS "ADM0NAME",
+        adm1name
+            AS "ADM1NAME",
+        longitude
+            AS "LONGITUDE",
+        latitude
+            AS "LATITUDE",
+        geom
+            AS geometry
+    FROM 
+        populated_places_expanded
+    GROUP BY 
+        wof_id,
+        name,
+        adm0name,
+        adm1name,
+        longitude,
+        latitude,
+        geom
+    ORDER BY 
+        wof_id;
 
-CREATE TEMP TABLE xref_expanded AS (
-    SELECT
-        p_id,
-        s_id,
-        year,
-        (TO_DATE(start, 'YYYYDDD') + i)::date 
-            AS day,
-        density
-    FROM xref,
-    generate_series(
-        0,
-        (TO_DATE("end", 'YYYYDDD') - TO_DATE(start, 'YYYYDDD'))::int
-    ) AS i
-);
 
-CREATE TEMP TABLE xref_ranked AS (
+CREATE TEMP TABLE xref_2 AS
     SELECT
-        p_id,
-        year,
-        day,
+        id,
+        "Density"
+            AS density,
+        (TO_DATE(SUBSTRING("Start" FROM 1 FOR 7), 'YYYYDDD') + i)::date 
+            AS day
+        FROM public.hms_smokes{{YEAR}},
+        generate_series(
+            0,
+            (TO_DATE(SUBSTRING("End" FROM 1 FOR 7), 'YYYYDDD') - TO_DATE(SUBSTRING("Start" FROM 1 FOR 7), 'YYYYDDD'))::int
+        ) 
+            AS i
+    ORDER BY
+        id;
+
+
+CREATE TEMP TABLE xref_3 AS
+    SELECT
+        id,
         MAX(
             CASE COALESCE(density, '')
                 WHEN 'Heavy'  THEN 3
@@ -48,25 +56,105 @@ CREATE TEMP TABLE xref_ranked AS (
                 ELSE 0
             END
         )
-            AS density_rank
-    FROM xref_expanded
-    GROUP BY p_id, year, day
-);
-
-CREATE TEMP TABLE out AS (
-    SELECT
+            AS rank,
         day
-            AS date,
-        COUNT(CASE WHEN density_rank = 1 THEN 1 END) 
-            AS l,
-        COUNT(CASE WHEN density_rank = 2 THEN 1 END) 
-            AS m,
-        COUNT(CASE WHEN density_rank = 3 THEN 1 END) 
-            AS h,
-        COUNT(CASE WHEN density_rank = 0 THEN 1 END) 
-            AS na,
-        COUNT(*) AS sum
-    FROM xref_ranked
-    GROUP BY date
-    ORDER BY date
-);
+    FROM 
+        xref_2
+    GROUP BY 
+        id,
+        day
+    ORDER BY 
+        id;
+
+
+CREATE TEMP TABLE xref_4 AS
+    SELECT
+        x3.id,
+        x3.rank,
+        x3.day,
+        s.geometry
+    FROM xref_3 x3
+    JOIN public.hms_smokes{{YEAR}} s
+        ON x3.id = s.id
+    ORDER BY
+        x3.id;
+
+
+CREATE TEMP TABLE xref_5 AS
+    SELECT
+        x1."WOF_ID",
+        x1."NAME",
+        x1."ADM0NAME",
+        x1."ADM1NAME",
+        x1."LONGITUDE",
+        x1."LATITUDE",
+        MAX(x4.rank) 
+            AS rank,
+        x4.day
+    FROM xref_1 x1
+    LEFT JOIN xref_4 x4
+        ON ST_Intersects(x1.geometry, x4.geometry)
+    GROUP BY
+        x1."WOF_ID",
+        x1."NAME",
+        x1."ADM0NAME",
+        x1."ADM1NAME",
+        x1."LONGITUDE",
+        x1."LATITUDE",
+        x4.day;
+
+
+CREATE TEMP TABLE xref_6 AS
+SELECT
+    "WOF_ID",
+    "NAME",
+    "ADM0NAME",
+    "ADM1NAME",
+    "LONGITUDE",
+    "LATITUDE",
+    
+    COUNT(CASE WHEN rank = 1 THEN 1 END)
+        AS "Smoke_days_light_point",
+    
+    COUNT(CASE WHEN rank = 2 THEN 1 END)
+        AS "Smoke_days_medium_point",
+
+    COUNT(CASE WHEN rank = 3 THEN 1 END)
+        AS "Smoke_days_heavy_point",
+
+    COUNT(CASE WHEN rank = 0 THEN 1 END)
+        AS "Smoke_days_undefined_point"
+FROM xref_5
+GROUP BY
+    "WOF_ID",
+    "NAME",
+    "ADM0NAME",
+    "ADM1NAME",
+    "LONGITUDE",
+    "LATITUDE"
+ORDER BY
+    "WOF_ID";
+
+
+CREATE TEMP TABLE out AS
+SELECT
+    "WOF_ID",
+    "NAME",
+    "ADM0NAME",
+    "ADM1NAME",
+    "LONGITUDE",
+    "LATITUDE",
+    "Smoke_days_light_point",
+    "Smoke_days_medium_point",
+    "Smoke_days_heavy_point",
+    "Smoke_days_undefined_point",
+    ("Smoke_days_light_point" 
+     + "Smoke_days_medium_point" 
+     + "Smoke_days_heavy_point" 
+     + "Smoke_days_undefined_point") 
+        AS "Smoke_days_aggregate_point"
+FROM xref_6
+ORDER BY 
+    "WOF_ID";
+
+COPY out TO '/Users/williamchuter-davies/Downloads/wfrtl_composite{{YEAR}}.csv' WITH (FORMAT csv, HEADER true);

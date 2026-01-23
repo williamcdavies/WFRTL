@@ -70,3 +70,5 @@ CREATE TEMP TABLE out AS (
     GROUP BY date
     ORDER BY date
 );
+
+-- COPY out TO STDOUT WITH CSV HEADER;

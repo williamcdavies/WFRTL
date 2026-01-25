@@ -18,14 +18,14 @@ COPY (
             FROM 
                 lakes l
             JOIN 
-                lakes_points lp
+                lakes_polys lp
                     ON l."Hylak_id" = lp."Hylak_id"
             GROUP BY 
                 l."Hylak_id", 
                 l."Lake_name",
                 l."Pour_long",
                 l."Pour_lat",
-                lp."geometry"
+                lp."4326_geometry"
         ),
         xref_2 AS (
             SELECT

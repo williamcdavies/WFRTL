@@ -2,17 +2,17 @@ COPY (
 WITH ws_filtered AS (
     SELECT
         ws.id
-            AS id
+            AS id,
         ws.tnmid
-            AS tnmid
+            AS tnmid,
         ws.globalid
-            AS globalid
+            AS globalid,
         ws.huc12
-            AS huc12
+            AS huc12,
         ws.name
-            AS name
+            AS name,
         ws.geom
-            AS ws_geometry
+            AS ws_geometry,
         fu.geometry 
             AS fu_geometry
         ST_Intersection(ws.geom, fu.geometry) 

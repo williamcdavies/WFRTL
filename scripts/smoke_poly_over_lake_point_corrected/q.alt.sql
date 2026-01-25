@@ -13,19 +13,19 @@ COPY (
                     AS pour_long,
                 l."Pour_lat"
                     AS pour_lat,
-                lp."4326_geometry"
+                lp.geometry
                     AS geometry
             FROM 
                 lakes l
             JOIN 
-                lakes_polys lp
+                lakes_points lp
                     ON l."Hylak_id" = lp."Hylak_id"
             GROUP BY 
                 l."Hylak_id", 
                 l."Lake_name",
                 l."Pour_long",
                 l."Pour_lat",
-                lp."4326_geometry"
+                lp."geometry"
         ),
         xref_2 AS (
             SELECT

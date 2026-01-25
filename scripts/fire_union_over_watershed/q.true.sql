@@ -14,7 +14,7 @@ WITH ws_filtered AS (
         ws.geom
             AS ws_geometry,
         fu.geometry 
-            AS fu_geometry
+            AS fu_geometry,
         ST_Intersection(ws.geom, fu.geometry) 
             AS intersection_geometry,
         ST_Area(ws.geom) AS area

@@ -56,7 +56,7 @@ Shapefiles downloaded from *UNKNOWN*. Transformed into models of `fire_polys`
 
 # Notes
 
-The associated database was refactored on March 6th, 2026. The patch notes are as follows
+The associated database was refactored on March 6th, 2026. These changes may break queries in all subdirectories. Field and/or table names may need to be updated. The patch notes are as follows:
 1. `fire_area_canada_usa` renamed to `fire_polys`
 2. `fire_area_canada_usa`/`fire_polys` schema changed from
 

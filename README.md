@@ -38,9 +38,9 @@ to build 1.5 km buffer polygons.
 
 
 
-#### `hms_fires`, `hms_smokes`
+#### `viirs_fires`, `hms_smokes`
 
-Shapefiles downloaded from https://www.ospo.noaa.gov/products/land/hms.html#data. Transformed into models of `hms_fires`, `hms_smokes`.
+Shapefiles downloaded from https://www.ospo.noaa.gov/products/land/hms.html#data. Transformed into models of `viirs_fires`, `hms_smokes`.
 
 
 
@@ -50,6 +50,186 @@ Shapefiles downloaded from https://www.naturalearthdata.com/downloads/10m-cultur
 
 
 
-#### `fire_area_canada_usa`
+#### `fire_polys`
 
-Shapefiles downloaded from *UNKNOWN*. Transformed into models of `fire_area_canada_usa`
+Shapefiles downloaded from *UNKNOWN*. Transformed into models of `fire_polys`
+
+# Notes
+
+The associated database was refactored on March 6th, 2026. The patch notes are as follows
+1. `fire_area_canada_usa` renamed to `fire_polys`
+2. `fire_area_canada_usa`/`fire_polys` schema changed from
+
+```sql
+CREATE TABLE public.fire_area_canada_usa (
+    "YEAR" double precision NOT NULL,
+    geometry public.geometry(Geometry,3978),
+    id bigint NOT NULL
+)
+PARTITION BY RANGE ("YEAR");
+```
+
+to
+
+```sql
+CREATE TABLE public.fire_polys (
+    id bigint NOT NULL,
+    year integer NOT NULL,
+    geom public.geometry(Geometry,3978),
+    geom_simplified public.geometry(Geometry,3978)
+)
+PARTITION BY RANGE (year);
+```
+
+3. `fire_area_canada_usa_unions` renamed to `fire_polys_unions`
+4. `hms_fires` renamed to `viirs_fires`
+5. `hms_fires`/`viirs_fires` schema  changed from 
+
+```sql
+CREATE TABLE public.hms_fires (
+    "Lon" double precision,
+    "Lat" double precision,
+    "YearDay" integer,
+    "Time" text,
+    geometry public.geometry(Point,4326),
+    "Year" integer NOT NULL,
+    id bigint NOT NULL
+)
+PARTITION BY RANGE ("Year");
+```
+
+to
+
+```sql
+CREATE TABLE public.viirs_fires (
+    id bigint NOT NULL,
+    year integer NOT NULL,
+    day integer,
+    "time" integer,
+    lon double precision,
+    lat double precision,
+    geom public.geometry(Point,4326)
+)
+PARTITION BY RANGE (year);
+```
+
+6. `hms_smokes` schema changed from
+
+```sql
+CREATE TABLE public.hms_smokes (
+    "Start" text,
+    "End" text,
+    "Density" text,
+    geometry public.geometry(Polygon,4326),
+    "Year" integer NOT NULL,
+    id bigint NOT NULL
+)
+PARTITION BY RANGE ("Year");
+```
+
+to
+
+```sql
+CREATE TABLE public.hms_smokes (
+    id bigint CONSTRAINT hms_smokes_id_not_null1 NOT NULL,
+    start_year integer NOT NULL,
+    start_day integer,
+    start_time integer,
+    end_year integer,
+    end_day integer,
+    end_time integer,
+    density integer,
+    geom public.geometry(Polygon,4326)
+)
+PARTITION BY RANGE (start_year);
+```
+
+7. `density` field extracted from `hms_smokes` into densities table
+8. `continent` field extracted from `lakes` into `continents` table
+9. `country` field extracted from `lakes` into `countries` table
+10. 
+11. `lakes` schema changed from
+
+```sql
+CREATE TABLE public.lakes (
+    "Hylak_id" integer NOT NULL,
+    "Lake_name" text,
+    "Country" text,
+    "Continent" text,
+    "Pour_long" double precision,
+    "Pour_lat" double precision
+);
+```
+
+to
+
+```sql
+CREATE TABLE public.lakes (
+    id integer NOT NULL,
+    name text,
+    country integer,
+    continent integer,
+    lon double precision,
+    lat double precision
+);
+```
+
+12. `lakes_buffers` schema changed from
+
+```sql
+CREATE TABLE public.lakes_buffers (
+    "Hylak_id" integer CONSTRAINT "lakes_polys_3978_Hylak_id_not_null" NOT NULL,
+    geometry public.geometry(Polygon,3978)
+);
+```
+
+to
+
+```sql
+CREATE TABLE public.lakes_buffers (
+    id integer NOT NULL,
+    geom public.geometry(Polygon,3978)
+);
+```
+
+13. `lakes_points` schema changed from
+
+```sql
+CREATE TABLE public.lakes_points (
+    "Hylak_id" integer CONSTRAINT "lakes_points_new_Hylak_id_not_null" NOT NULL,
+    geometry public.geometry(Point,4326)
+);
+```
+
+to
+
+```sql
+CREATE TABLE public.lakes_points (
+    id integer NOT NULL,
+    geom public.geometry(Point,4326)
+);
+
+```
+
+13. `lakes_polys` schema changed from
+
+```sql
+CREATE TABLE public.lakes_polys (
+    "Hylak_id" integer CONSTRAINT "lakes_polys_new_Hylak_id_not_null" NOT NULL,
+    "4326_geometry" public.geometry(Polygon,4326),
+    "3978_geometry" public.geometry(Polygon,3978)
+);
+```
+
+to
+
+```sql
+CREATE TABLE public.lakes_polys (
+    id integer NOT NULL,
+    geom_4326 public.geometry(Polygon,4326),
+    geom_3978 public.geometry(Polygon,3978)
+);
+```
+
+14. `populated_places` dropped
+15. `populated_places_expanded` renamed to `populated_places`

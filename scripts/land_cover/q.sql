@@ -36,10 +36,10 @@ counts AS (
         mlct.name           AS name,
         (vc).value::integer AS value,
         SUM((vc).count)     AS count
-    FROM     masked_land_cover_tiles                                             AS mlct
-    CROSS    JOIN LATERAL ST_ValueCount(ST_Clip(mlct.rast, mlct.geom, true), 1) AS vc
-    WHERE    (vc).value::integer NOT IN (0, 127)
-    GROUP BY mlct.year, mlct.name, (vc).value::integer
+    FROM       masked_land_cover_tiles                                       AS mlct
+    CROSS JOIN LATERAL ST_ValueCount(ST_Clip(mlct.rast, mlct.geom, true), 1) AS vc
+    WHERE      (vc).value::integer NOT IN (0, 127)
+    GROUP BY   mlct.year, mlct.name, (vc).value::integer
 ),
 class_burn_area_km2 AS (
     SELECT

@@ -3,10 +3,10 @@
 for year in $(seq 2024 -1 1984); do
     echo "Processing year $year …"
 
-    # Script 1: compute lakes with overlap
+    # Script 1: compute watersheds with overlap
     sed "s/{{YEAR}}/$year/g" q.true.sql | psql -d spatial -o "fire_area_canada_usa_composite${year}_overlap_true.csv"
 
-    # Script 2: compute lakes without overlap
+    # Script 2: compute watersheds without overlap
     sed "s/{{YEAR}}/$year/g" q.false.sql | psql -d spatial -o "fire_area_canada_usa_composite${year}_overlap_false.csv"
 
     # Concatenate with TRUE rows first

@@ -5,21 +5,14 @@ COPY (
     WITH 
         xref_1 AS (
             SELECT
-                l."Hylak_id"
-                    AS hylak_id,
-                l."Lake_name"
-                    AS lake_name,
-                l."Pour_long"
-                    AS pour_long,
-                l."Pour_lat"
-                    AS pour_lat,
-                lp."4326_geometry"
-                    AS geometry
-            FROM 
-                lakes l
-            JOIN 
-                lakes_polys lp
-                    ON l."Hylak_id" = lp."Hylak_id"
+                l."Hylak_id"       AS hylak_id,
+                l."Lake_name"      AS lake_name,
+                l."Pour_long"      AS pour_long,
+                l."Pour_lat"       AS pour_lat,
+                lp."4326_geometry" AS geometry
+            FROM lakes AS l
+            JOIN lakes_polys AS lp
+                ON l."Hylak_id" = lp."Hylak_id"
             GROUP BY 
                 l."Hylak_id", 
                 l."Lake_name",
@@ -35,19 +28,15 @@ COPY (
                     WHEN 'Medium' THEN 2
                     WHEN 'Light'  THEN 1
                     ELSE 0
-                END 
-                    AS rank,
-                (TO_DATE(SUBSTRING("Start" FROM 1 FOR 7), 'YYYYDDD') + i)::date 
-                    AS day,
+                END AS "rank",
+                (TO_DATE(SUBSTRING("Start" FROM 1 FOR 7), 'YYYYDDD') + i)::date AS "day",
                 geometry
-            FROM 
-                public.hms_smokes{{YEAR}}
+            FROM public.hms_smokes{{YEAR}}
             CROSS JOIN 
                 LATERAL generate_series(
                     0,
                     (TO_DATE(SUBSTRING("End" FROM 1 FOR 7), 'YYYYDDD') - TO_DATE(SUBSTRING("Start" FROM 1 FOR 7), 'YYYYDDD'))::int
-                ) 
-                    AS i
+                ) AS i
         ),
         xref_3 AS (
             SELECT
@@ -56,13 +45,10 @@ COPY (
                 x1.pour_long,
                 x1.pour_lat,
                 x2.day,
-                MAX(x2.rank) 
-                    AS rank
-            FROM 
-                xref_1 x1
-            LEFT JOIN 
-                xref_2 x2
-                    ON ST_Intersects(x1.geometry, x2.geometry)
+                MAX(x2.rank) AS "rank"
+            FROM xref_1 AS x1
+            LEFT JOIN xref_2 AS x2
+                ON ST_Intersects(x1.geometry, x2.geometry)
             GROUP BY
                 x1.hylak_id,
                 x1.lake_name,
@@ -75,21 +61,15 @@ COPY (
             lake_name,
             pour_long,
             pour_lat,
-            COUNT(CASE WHEN rank = 1 THEN 1 END) 
-                AS "Smoke_days_light_point",
-            COUNT(CASE WHEN rank = 2 THEN 1 END) 
-                AS "Smoke_days_medium_point",
-            COUNT(CASE WHEN rank = 3 THEN 1 END) 
-                AS "Smoke_days_heavy_point",
-            COUNT(CASE WHEN rank = 0 THEN 1 END) 
-                AS "Smoke_days_undefined_point",
+            COUNT(CASE WHEN rank = 1 THEN 1 END)    AS "Smoke_days_light_point",
+            COUNT(CASE WHEN rank = 2 THEN 1 END)    AS "Smoke_days_medium_point",
+            COUNT(CASE WHEN rank = 3 THEN 1 END)    AS "Smoke_days_heavy_point",
+            COUNT(CASE WHEN rank = 0 THEN 1 END)    AS "Smoke_days_undefined_point",
             (COUNT(CASE WHEN rank = 1 THEN 1 END)
             + COUNT(CASE WHEN rank = 2 THEN 1 END)
             + COUNT(CASE WHEN rank = 3 THEN 1 END)
-            + COUNT(CASE WHEN rank = 0 THEN 1 END)) 
-                AS "Smoke_days_aggregate_point"
-        FROM 
-            xref_3
+            + COUNT(CASE WHEN rank = 0 THEN 1 END)) AS "Smoke_days_aggregate_point"
+        FROM xref_3
         GROUP BY 
             hylak_id,
             lake_name,

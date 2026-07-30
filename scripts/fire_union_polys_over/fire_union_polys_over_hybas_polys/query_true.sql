@@ -8,8 +8,9 @@ COPY (
             hybas.geom_3978                            AS hybas_geom,
             ST_Area(hybas.geom_3978)                   AS hybas_area,
             ST_Intersection(hybas.geom_3978, fpu.geom) AS intersection_geom
-        FROM  hybas             AS hybas
-        JOIN  fire_polys_unions AS fpu ON fpu.year = {{YEAR}}
+        FROM  hybas AS hybas
+        JOIN  fire_polys_unions AS fpu 
+            ON fpu.year = {{YEAR}}
         WHERE ST_Intersects(hybas.geom_3978, fpu.geom)
     )
     SELECT
@@ -25,9 +26,13 @@ COPY (
         l.lon                                                    AS hylak_lon,
         l.lat                                                    AS hylak_lat
     FROM clipped_watersheds AS cw
-    JOIN lakes_points       AS lp ON ST_Intersects(cw.hybas_geom, lp.geom_3978)
-    JOIN lakes              AS l  ON l.id = lp.id
-    JOIN countries          AS co ON co.id = l.country
-    JOIN continents         AS cn ON cn.id = l.continent
+    JOIN lakes_points       AS lp 
+        ON ST_Intersects(cw.hybas_geom, lp.geom_3978)
+    JOIN lakes              AS l  
+        ON l.id = lp.id
+    JOIN countries          AS co 
+        ON co.id = l.country
+    JOIN continents         AS cn 
+        ON cn.id = l.continent
     ORDER BY cw.id, l.id
 ) TO STDOUT WITH CSV HEADER;

@@ -5,22 +5,14 @@ COPY (
     WITH 
         xref_1 AS (
             SELECT
-                wof_id
-                    AS "WOF_ID",
-                name
-                    AS "NAME",
-                adm0name
-                    AS "ADM0NAME",
-                adm1name
-                    AS "ADM1NAME",
-                longitude
-                    AS "LONGITUDE",
-                latitude
-                    AS "LATITUDE",
-                geom
-                    AS geometry
-            FROM 
-                populated_places_expanded
+                wof_id    AS "WOF_ID",
+                name      AS "NAME",
+                adm0name  AS "ADM0NAME",
+                adm1name  AS "ADM1NAME",
+                longitude AS "LONGITUDE",
+                latitude  AS "LATITUDE",
+                geom      AS geometry
+            FROM populated_places_expanded
             GROUP BY 
                 wof_id, 
                 name, 
@@ -38,19 +30,15 @@ COPY (
                     WHEN 'Medium' THEN 2
                     WHEN 'Light'  THEN 1
                     ELSE 0
-                END 
-                    AS rank,
-                (TO_DATE(SUBSTRING("Start" FROM 1 FOR 7), 'YYYYDDD') + i)::date 
-                    AS day,
+                END AS "rank",
+                (TO_DATE(SUBSTRING("Start" FROM 1 FOR 7), 'YYYYDDD') + i)::date AS "day",
                 geometry
-            FROM 
-                public.hms_smokes{{YEAR}}
+            FROM public.hms_smokes{{YEAR}}
             CROSS JOIN 
                 LATERAL generate_series(
                     0,
                     (TO_DATE(SUBSTRING("End" FROM 1 FOR 7), 'YYYYDDD') - TO_DATE(SUBSTRING("Start" FROM 1 FOR 7), 'YYYYDDD'))::int
-                ) 
-                    AS i
+                ) AS i
         ),
         xref_3 AS (
             SELECT
@@ -61,13 +49,10 @@ COPY (
                 x1."LONGITUDE",
                 x1."LATITUDE",
                 x2.day,
-                MAX(x2.rank) 
-                    AS rank
-            FROM 
-                xref_1 x1
-            LEFT JOIN 
-                xref_2 x2
-                    ON ST_Intersects(x1.geometry, x2.geometry)
+                MAX(x2.rank) AS "rank"
+            FROM xref_1 AS x1
+            LEFT JOIN xref_2 AS x2
+                ON ST_Intersects(x1.geometry, x2.geometry)
             GROUP BY
                 x1."WOF_ID", 
                 x1."NAME", 
@@ -84,21 +69,15 @@ COPY (
             "ADM1NAME",
             "LONGITUDE",
             "LATITUDE",
-            COUNT(CASE WHEN rank = 1 THEN 1 END) 
-                AS "Smoke_days_light_point",
-            COUNT(CASE WHEN rank = 2 THEN 1 END) 
-                AS "Smoke_days_medium_point",
-            COUNT(CASE WHEN rank = 3 THEN 1 END) 
-                AS "Smoke_days_heavy_point",
-            COUNT(CASE WHEN rank = 0 THEN 1 END) 
-                AS "Smoke_days_undefined_point",
+            COUNT(CASE WHEN rank = 1 THEN 1 END)    AS "Smoke_days_light_point",
+            COUNT(CASE WHEN rank = 2 THEN 1 END)    AS "Smoke_days_medium_point",
+            COUNT(CASE WHEN rank = 3 THEN 1 END)    AS "Smoke_days_heavy_point",
+            COUNT(CASE WHEN rank = 0 THEN 1 END)    AS "Smoke_days_undefined_point",
             (COUNT(CASE WHEN rank = 1 THEN 1 END)
             + COUNT(CASE WHEN rank = 2 THEN 1 END)
             + COUNT(CASE WHEN rank = 3 THEN 1 END)
-            + COUNT(CASE WHEN rank = 0 THEN 1 END)) 
-                AS "Smoke_days_aggregate_point"
-        FROM 
-            xref_3
+            + COUNT(CASE WHEN rank = 0 THEN 1 END)) AS "Smoke_days_aggregate_point"
+        FROM xref_3
         GROUP BY 
             "WOF_ID", 
             "NAME", 
